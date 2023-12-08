@@ -1,48 +1,48 @@
 #这是一个手动触发的工作流,用于在支持的RK3566设备上构建带有更新的Arkos标识的图像
 
-     姓名   : 带有标志生成器的Arkos内核
+     姓名                  : 带有标志生成器的Arkos内核
 
-     在…上   :
-     工作流程   :    
-     投入   :    
-      设备_单元       :
-        类型       : 选择
-        描述       : 'Choose your device'
-        必需的       : 真实的
-        选择权       :
+     在…上                  :
+     工作流程                  :    
+     投入                 :    
+      设备_单元                    :
+        类型                   : 选择
+        描述                  : '选择你的设备'
+        必需的                 : 真实的
+        选择权                :
         - RG353
         - RG503
         - Rgb30
         - RK2023
-      图片_链接       :
-        描述       : 'https://ibb.co/hd6NN5t'
-        必需的       : 真实的
-      更新数据_Hdmi       :
-        类型       : 选择
-        描述       : 你也想更新hdmi的标识吗? '
-        必需的       : 假的
-        选择权       :
+      图片_链接               :
+        描述              : 'https://ibb.co/hd6NN5t'
+        必需的             : 真实的
+      更新数据_Hdmi            :
+        类型           : 选择
+        描述          : 你也想更新hdmi的标识吗? '
+        必需的         : 假的
+        选择权        :
         - 不
         - 是的
-      Hdmi_图片_链接       :
-        描述       : 'HTML链接到您的巴布亚新几内亚文件的hdmi输出'
-        必需的       : 假的
-     乔布斯   :
+      Hdmi_图片_链接        :
+        描述                      : 'HTML链接到您的巴布亚新几内亚文件的hdmi输出'
+        必需的                     : 假的
+     乔布斯                :
   #这个工作流包含一个作业。
-     建造   :    
+     建造               :    
     #这项工作将根据什么类型的跑步者
-     逃跑   : 乌本图-20.04    
+     逃跑              : 乌本图-20.04    
     #步骤表示将作为作业的一部分执行的任务序列
-     台阶   :    
-     - 姓名       : 结帐手续
-       使用       : 行动/结账@v3
-      与…有关       :
-        参考文件       : $ {       { 名称 }       }
-        吸引力的深度       : 1
-    - 姓名       : 选定内核回购
-      身份证      : Build_kernel_with_new_logo
-      外壳     : 猛击 { 0 }
-      跑   : |
+     台阶             :    
+     - 姓名                : 结帐手续
+       使用               : 行动/结账@v3
+       与…有关              :
+        参考文件             : $ {            { 名称 }           }
+        吸引力的深度          : 1
+    - 姓名         : 选定内核回购
+      身份证       : Build_kernel_with_new_logo
+      外壳       : 猛击 { 0 }
+      跑    : |
 
         #验证提供的HTML链接是指向文件的。巴布亚新几内亚或来自国际广播公司
         if [[ "${{ github.event.inputs.picture_link }}" != *.png ]] && [[ "${{ github.event.inputs.picture_link }}" != *.PNG ]] && [[ "${{ github.event.inputs.picture_link }}" != *"ibb.co"* ]]; then
@@ -84,9 +84,9 @@
           wget -t 3 -T 60 --no-check-certificate "${{ github.event.inputs.picture_link }}" -O logo.txt
           real_logo="$(grep 'og:image" content="' logo.txt | cut -d '"' -f 4)"
           wget -t 3 -T 60 --no-check-certificate "${real_logo}" -O logo.png
-        else
+        其他的
           wget -t 3 -T 60 --no-check-certificate "${{ github.event.inputs.picture_link }}" -O logo.png
-        fi
+        菲
         if [ "$?" != "0" ]; then
           echo "::error::Failed to get ${{ github.event.inputs.picture_link }}"
           exit 1
@@ -100,7 +100,7 @@
             wget -t 3 -T 60 --no-check-certificate "${{ github.event.inputs.hdmi_picture_link }}" -O hdmi_logo.txt
             real_logo="$(grep 'og:image" content="' hdmi_logo.txt | cut -d '"' -f 4)"
             wget -t 3 -T 60 --no-check-certificate "${real_logo}" -O hdmi_logo.png
-          else
+          其他的
             wget -t 3 -T 60 --no-check-certificate "${{ github.event.inputs.hdmi_picture_link }}" -O hdmi_logo.png
           fi
           if [ "$?" != "0" ]; then

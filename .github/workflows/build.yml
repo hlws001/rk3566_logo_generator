@@ -1,81 +1,81 @@
-#这是一个手动触发的工作流,用于在支持的RK3566设备上构建带有更新的Arkos标识的图像
+# This is a workflow that is manually triggered to build an Image with an updated logo for ArkOS on supported RK3566 devices
 
-     姓名   : 带有标志生成器的Arkos内核
+name: ArkOS Kernel with Logo Generator
 
-     在…上   :
-     工作流程   :    
-     投入   :    
-      设备_单元       :
-        类型       : 选择
-        描述       : 'Rgb30'
-        必需的       : 真实的
-        选择权       :
+on:
+  workflow_dispatch:
+    inputs:
+      device_unit:
+        type: choice
+        description: 'RGB30'
+        required: true
+        options:
         - RG353
         - RG503
-        - Rgb30
+        - RGB30
         - RK2023
-      图片_链接       :
-        描述       : 'https://ibb.co/hd6NN5t'
-        必需的       : 真实的
-      更新数据_Hdmi       :
-        类型       : 选择
-        描述       : 你也想更新hdmi的标识吗? '
-        必需的       : 假的
-        选择权       :
-        - 不
-        - 是的
-      Hdmi_图片_链接       :
-        描述       : 'HTML链接到您的巴布亚新几内亚文件的hdmi输出'
-        必需的       : 假的
-     乔布斯   :
-  #这个工作流包含一个作业。
-     建造   :    
-    #这项工作将根据什么类型的跑步者
-     逃跑   : 乌本图-20.04    
-    #步骤表示将作为作业的一部分执行的任务序列
-     台阶   :    
-     - 姓名       : 结帐手续
-       使用       : 行动/结账@v3
-      与…有关       :
-        参考文件       : $ {       { 名称 }       }
-        吸引力的深度       : 1
-    - 姓名       : 选定内核回购
-      身份证      : Build_kernel_with_new_logo
-      外壳     : 猛击 { 0 }
-      跑   : |
+      picture_link:
+        description: 'https://ibb.co/k0DJ1Gd'
+        required: true
+      update_hdmi:
+        type: choice
+        description: 'Would you like to update the hdmi out logo as well?'
+        required: false
+        options:
+        - Nope
+        - Yep
+      hdmi_picture_link:
+        description: 'HTML link to your png file for hdmi out'
+        required: false
+jobs:
+  # This workflow contains a single job.
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-20.04
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    - name: checkout_repo
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.ref_name }}
+        fetch-depth: 1
+    - name: checkout kernel repo selected
+      id: Build_kernel_with_new_logo
+      shell: bash {0}
+      run: |
 
-        #验证提供的HTML链接是指向文件的。巴布亚新几内亚或来自国际广播公司
+        # Verify that html link provided is to a file ending in .png or is from ibb.co
         if [[ "${{ github.event.inputs.picture_link }}" != *.png ]] && [[ "${{ github.event.inputs.picture_link }}" != *.PNG ]] && [[ "${{ github.event.inputs.picture_link }}" != *"ibb.co"* ]]; then
-          错误:链接似乎没有包含一个。巴布亚新几内亚档案"
-          1号出口
-        菲
+          echo "::error::Link doesn't seem to contain a .png file"
+          exit 1
+        fi
 
-        #安装必要的内核构建和标识处理工具
-        最新情况
-        安装建筑物基本设备LZOP建筑物基本海湾合作委员会
+        # Install necessary kernel building and logo processing tools
+        sudo apt -y update
+        sudo apt -y install build-essential git lzop build-essential gcc bc libncurses5-dev libc6-i386 lib32stdc++6 zlib1g netpbm imgp
 
-        为这个内核构建克隆正确的内核回购
+        # Clone the correct kernel repo for this kernel build
         if [[ "${{ github.event.inputs.device_unit }}" == "RG353" ]]; then
-           它="RG353V内核"
+           whichgit="RG353VKernel"
            git clone --depth=1 --recursive https://github.com/christianhaitian/${whichgit}.git
         elif [[ "${{ github.event.inputs.device_unit }}" == "RG503" ]]; then
-           其中="rg503核"
+           whichgit="rg503Kernel"
            git clone --depth=1 --recursive https://github.com/christianhaitian/${whichgit}.git
-        其他的
-           它="RG353V内核"
+        else
+           whichgit="RG353VKernel"
            git clone --depth=1 --recursive https://github.com/christianhaitian/${whichgit}.git -b rk2023
-        菲
+        fi
 
-        #安装构建内核的必要工具链
+        # Install the necessary toolchain for building the kernel
         mkdir -p ./prebuilts/gcc/linux-x86/aarch64/
         wget https://releases.linaro.org/components/toolchain/binaries/6.3-2017.05/aarch64-linux-gnu/gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu.tar.xz
-        TARJxvfGCC-亚麻-6.3.1-2011.05-x86_64_阿奇-64-加纳。建设/海湾合作委员会/利努克斯-X86/阿卡奇64/
-        美元(每一美元)
+        tar Jxvf gcc-linaro-6.3.1-2017.05-x86_64_aarch64-linux-gnu.tar.xz -C ./prebuilts/gcc/linux-x86/aarch64/
+        cd ${whichgit}
 
-        #检查这是否是一个巴斯特板
-        #如是巴氏板,则须连结
-        我们需要真正的标志链接
-        #并尝试处理它。
+        # Check to see if this is a pasteboard.co or ibb.co link
+        # If it is a pasteboard.co or ibb.co link
+        # we need to get the real logo link
+        # and attempt to process it.
         if [[ "${{ github.event.inputs.picture_link }}" == *"pasteboard.co"* ]]; then
           wget -t 3 -T 60 --no-check-certificate "${{ github.event.inputs.picture_link }}" -O logo.txt
           real_logo="$(grep 'img data-src="' logo.txt | cut -d '"' -f 2)"

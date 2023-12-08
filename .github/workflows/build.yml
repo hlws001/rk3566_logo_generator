@@ -7,7 +7,7 @@ on:
     inputs:
       device_unit:
         type: choice
-        description: 'RGB30'
+        description: 'Choose your device'
         required: true
         options:
         - RG353
@@ -15,7 +15,7 @@ on:
         - RGB30
         - RK2023
       picture_link:
-        description: 'https://ibb.co/k0DJ1Gd'
+        description: 'HTML link to your png file'
         required: true
       update_hdmi:
         type: choice
